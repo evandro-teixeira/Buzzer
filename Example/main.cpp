@@ -32,7 +32,7 @@
 #define DEBOUNCE_BUTTON     50                  // Tempo do debounce do botão
 #define SW_TIMER_PERIOD_PULSO    10             // 10 ms
 #define SW_TIMER_PERIOD_BUZZER   500            // 500 ms
-#define NUMBER_OF_ELEMENTS  8                   // Número de elementos na fila
+#define NUMBER_OF_ELEMENTS       8              // Número de elementos na fila
 
 /**
  * @brief Cria objeto Buzzer
@@ -104,7 +104,7 @@ void setup()
   }
 
   // Cria SoftwareTimer  TimerBuzzer
-  TimerBuzzer = xTimerCreate("TIMER_PULSO",pdMS_TO_TICKS(SW_TIMER_PERIOD_BUZZER),pdTRUE,NULL,Callback_TimerBuzzer);
+  TimerBuzzer = xTimerCreate("TIMER_PULSO",pdMS_TO_TICKS(SW_TIMER_PERIOD_BUZZER),pdFALSE,NULL,Callback_TimerBuzzer);
   if(TimerBuzzer == NULL)
   {
     Serial.printf("\n\rFalha em criar SW_Timer TimerBuzzer");
@@ -178,7 +178,7 @@ void Tarefa_Pulso(void *parameters)
           digitalWrite(LED_BOARD,LOW);
           Serial.print(COLOR_GREEN);
           Serial.printf("\n\rDetecta borda de subida - Desliga LED on Board");
-          Serial.printf("\n\rLargura Pulso: %LU", valuePulso);
+          Serial.printf("\n\rLargura Pulso: %d", valuePulso);
           Serial.print(COLOR_RESET);
         }
       }
@@ -207,7 +207,7 @@ void Tarefa_Buzzer(void *parameters)
       buzzerSts = true;
 
       Serial.print(COLOR_YELLOW);
-      Serial.printf("\n\rvaluePulso: %LU",valuePulso);
+      Serial.printf("\n\rvaluePulso: %d",valuePulso);
       Serial.print(COLOR_RESET);
       // Checa se o pulso esta entre 1 a 2 segundo
       if((valuePulso >= 1000) && (valuePulso < 2000))
@@ -248,7 +248,7 @@ void Tarefa_Buzzer(void *parameters)
             xTimerChangePeriod(TimerBuzzer,pdMS_TO_TICKS(valuePulso), 0);
             xTimerStart(TimerBuzzer, 0 );
             Serial.print(COLOR_YELLOW);
-            Serial.printf("\n\rLiga Buzzer por %LU segundo c/ Nota F",valuePulso);
+            Serial.printf("\n\rLiga Buzzer por %d milissegundos c/ Nota F",valuePulso);
             Serial.print(COLOR_RESET);
           }
           else
@@ -273,6 +273,8 @@ void Tarefa_Buzzer(void *parameters)
       if(buzzerSts == true)
       {
         buzzerSts = false;
+        // Encera o TimerBuzzer
+        xTimerStop(TimerBuzzer, 0);
         // Desliga Buzzer
         Buzzer.stop();
         Serial.print(COLOR_YELLOW);
